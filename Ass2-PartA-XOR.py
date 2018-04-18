@@ -84,6 +84,37 @@ def xor(char):
 
     return "".join(out)
 
+def xorDec(binary):
+
+    while(True):
+        if(len(binary) < 8):
+            binary = "0"+binary
+        else:
+            break
+
+    #print(binary)
+
+    out = []
+
+    global counter
+
+    #print(key)
+
+    for i in range(len(binary)):
+
+        if(int(key[counter]) != int(binary[i])):
+            out.append("1")
+        else:
+            out.append("0")
+
+        if(counter < len(key)-1):
+            counter += 1
+        else:
+            counter = 0
+
+
+    return "".join(out)
+
 offset = raw_input("Please enter the key to encrypt / decrypt with using a XOR process")
 
 
@@ -118,9 +149,9 @@ if("Y" in quest or "y" in quest):
 
     for i in word:
         #print(i)
-        output.append(str(hex(int(xor(i), 2))).split("x")[1])
+        #output.append(str(hex(int(xor(i), 2))).split("x")[1])
         #output.append(int(xor(i), 2))
-        #output.append(xor(i))
+        output.append(xor(i))
 
     print(output)
 
@@ -129,9 +160,12 @@ if("Y" in quest or "y" in quest):
 else:
     output = []
 
-    for i in word:
+    dank = word.split()
+
+    for i in dank:
         #print(i)
-        output.append(str(hex(int(xor(i), 2))).split("x")[1])
+        #output.append(str(hex(int(xor(i), 2))).split("x")[1])
+        output.append(chr(int(xorDec(i), 2)))
         #output.append(int(xor(i), 2))
         #output.append(xor(i))
 
