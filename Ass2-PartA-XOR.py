@@ -40,6 +40,7 @@ def xor(key, char):
     print(key)
 
     for i in range(len(binary)):
+
         if(int(key[i]) != int(binary[i])):
             out.append("1")
         else:
