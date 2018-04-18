@@ -24,12 +24,6 @@ if word == "END":
     exit(0)
 
 
-output = []
-
-for i in offset:
-    output.append(str(bin(ord(i))).split("b")[1])
-
-
 while True:
     quest = raw_input("Enter 'Y' to encrypt or 'N' to decrypt the entered word")
 
@@ -39,19 +33,35 @@ while True:
     print("not a valid input")
     time.sleep(1)
 
+def xor(key, char):
+    binary = str(bin(ord(char))).split("b")[1]
+    out = []
+    key = str(key)
+    print(key)
+
+    for i in range(len(binary)):
+        if(int(key[i]) != int(binary[i])):
+            out.append("1")
+        else:
+            out.append("0")
+
+    return "".join(out)
+
+
+
+
 if("Y" in quest or "y" in quest):
     output = []
 
     for i in word:
-        i = i.lower()
+        i.lower()
 
-        if (i != " "):
-                if(ord(i) + offset > 122):
-                    output.append(chr((ord(i) + offset) - 26))
-                else:
-                    output.append(chr(ord(i) + offset))
-        else:
-            output.append(" ")
+        output.append(chr(int(xor(offset, i),2)))
+
+    print(output)
+
+
+
 else:
     output = []
 
@@ -66,5 +76,3 @@ else:
         else:
             output.append(" ")
 
-
-print(''.join(output))
