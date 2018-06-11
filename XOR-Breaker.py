@@ -1,15 +1,21 @@
+import itertools
+
 lookupList = [32,
               65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90,
               97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110 ,111, 112, 113, 114, 115, 116, 117 ,118, 119, 120, 121, 122]
 
 diagraphs = ["cj", "fq", "gx", "hx", "jf", "jq", "jx", "jz", "qb", "qc", "qj", "qk", "qx", "qz", "sx", "vf", "vj", "vq", "vx", "wx", "xj", "zx"]
 
-vowels = ["a", "e", "i", "o", "u", "y"]
+vowels = ["a", "e", "i", "o", "u", "y",
+          "A", "E", "I", "O", "U", "Y"]
+
+commonLetters = ["E","T","A","O","I","N",
+                 "e","t","a","o","i","n"]
 
 def handleIn():
     #cipherText = raw_input("Enter in the ciphertext in HEX seperate with space: ").split()
 
-    cipherText = "0d 10 1a 00 45 0d 03 00 59 1b 0a 15 02 06 1c".split()
+    cipherText = "2c 04 02 07 0b 41 03 12 44 2f 0f 06 01 41 07 18 44 24 1a 03 05 0f".split()
     #fuck the police 0d 10 1a 00 45 0d 03 00 59 1b 0a 15 02 06 1c
     #key
 
@@ -101,16 +107,32 @@ def checkVowel(input):
             return True
     return False
 
-#Codes is taken in as an array of binary
-def bruteSingleChar(codes):
+def calcWeight(word):
+    score = 0
 
+    for letter in word:
+        for i in commonLetters:
+            if(i == letter):
+                score += 1
+
+    return score
+
+
+#Codes is taken in as an array of binary
+def bruteSingleChar(codes, depth):
     possible = []
+    scores = []
 
     for a in lookupList:
         found = True
         word = []
 
         for b in codes:
+            if(len(b) <= depth):
+                found = False
+                break
+
+            b = b[depth]
 
             if(xorChar(chr(a), b) not in lookupList):
                 found = False
@@ -120,13 +142,31 @@ def bruteSingleChar(codes):
 
         wordStr = ''.join(word)
 
-        if(found and checkDiagraph(wordStr) and checkVowel(wordStr)):
+        #if(found and checkDiagraph(wordStr) and checkVowel(wordStr)):
+        if (found ):
             possible.append(chr(a))
+            scores.append(calcWeight(wordStr))
+
+
+    # if(len(possible) > 1):
+    #     highestScore = max(scores)
+    #
+    #     for i in range(len(scores)):
+    #         if(scores[i] == highestScore):
+    #             return possible[i]
+
     return possible
 
 
+def chunks(l, n):
+    for i in range(0, len(l), n):
+        yield l[i:i+n]
 
-
+def goodResult(list):
+    for item in list:
+        if(len(item) == 0):
+            return False
+    return True
 
 cipher = handleIn()
 
@@ -134,14 +174,20 @@ print(cipher)
 
 # print(bruteSingleChar(cipher))
 
+finalKeyAnswers = []
 
-for n in range(2, 10, 1):
-    testCase = []
+for n in range(2, len(cipher), 1):
+    result = []
 
-    for i in range(0, len(cipher), n):
-        testCase.append(cipher[i])
+    for i in range(0, n, 1):
+        result.append(bruteSingleChar(list(chunks(cipher, n)), i))
 
-    print(bruteSingleChar(testCase))
+    if(goodResult(result)):
+        finalKeyAnswers.append(result)
+
+print(finalKeyAnswers[0])
+
+print(list(itertools.permutations(finalKeyAnswers[0])))
 
 
 
