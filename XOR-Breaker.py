@@ -247,7 +247,7 @@ def wordCount(sentence):
         if(dictionary.check(word)):
             wordCount += 1.0
 
-    #print(words, " ", wordCount)
+    print(words, " ", wordCount)
 
     return wordCount
 
@@ -260,7 +260,7 @@ def recursiveSolve(keyArr, encrypt):
             for k in keyArr[1]:
                 if(testString(breakArr([i, k], encrypt)) and testString(i+k)):
                     if (checkDict(breakArr([i, k], encrypt))):
-                        print(breakArr([i, k], encrypt))
+                        #print(breakArr([i, k], encrypt))
                         solutions.append(breakArr([i, k], encrypt))
 
 
@@ -271,7 +271,7 @@ def recursiveSolve(keyArr, encrypt):
                 for k in keyArr[2]:
                     if (testString(breakArr([i, j, k], encrypt)) and testString(i+j+k)):
                         if (checkDict(breakArr([i, j, k], encrypt))):
-                            print(breakArr([i, j, k], encrypt))
+                            #print(breakArr([i, j, k], encrypt))
                             solutions.append(breakArr([i, j, k], encrypt))
 
     if (len(keyArr) == 4):
@@ -282,7 +282,7 @@ def recursiveSolve(keyArr, encrypt):
                     for l in keyArr[3]:
                         if (testString(breakArr([i, j, k, l], encrypt)) and testString(i + j + k + l)):
                             if (checkDict(breakArr([i, j, k, l], encrypt))):
-                                print(breakArr([i, j, k, l], encrypt))
+                                #print(breakArr([i, j, k, l], encrypt))
                                 solutions.append(breakArr([i, j, k, l], encrypt))
 
     if (len(keyArr) == 5):
@@ -294,7 +294,7 @@ def recursiveSolve(keyArr, encrypt):
                         for m in keyArr[4]:
                             if (testString(breakArr([i, j, k, l, m], encrypt)) and testString(i + j + k + l + m)):
                                 if(checkDict(breakArr([i, j, k, l, m], encrypt))):
-                                    print(breakArr([i, j, k, l, m], encrypt))
+                                    #print(breakArr([i, j, k, l, m], encrypt))
                                     solutions.append(breakArr([i, j, k, l, m], encrypt))
 
     return solutions
@@ -338,9 +338,6 @@ for soln in finalKeyAnswers:
 print("Solutions are"),
 for i in possibleAnswers:
     print(i, " with a english word count of", wordScore)
-
-
-
 
 
 #
