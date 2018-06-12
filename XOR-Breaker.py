@@ -1,10 +1,14 @@
 import itertools
+import enchant
+
+dictionary = enchant.Dict("en_US")
 
 lookupList = [46, 44, 33, 63, 34, 32,
               65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90,
               97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110 ,111, 112, 113, 114, 115, 116, 117 ,118, 119, 120, 121, 122]
 
 diagraphs = ["cj", "fq", "gx", "hx", "jf", "jq", "jx", "jz", "qb", "qc", "qj", "qk", "qx", "qz", "sx", "vf", "vj", "vq", "vx", "wx", "xj", "zx"]
+#diagraphs = ["bq", "bz", "cf", "cj" "cv", "cx" "fq" "fv" "fx" "fz" "gq" "gv" "gx" "hx" "hz" "jb" "jd" "jf" "jg" "jh" "jl" "jm" "jp" "jq" "js" "jt" "jv" "jw" "jx" "jy" "jz" "kq" "kx" "kz" "mx" "mz" "pq" "pv" "px" "qb" "qc" "qd" "qf" "qg" "qh" "qj" "qk" "ql" "qm qn qp qq qv qw qx qy qz sx tq vb vf vh vj vk vm vp vq vw vx wq wv wx xd xj xk xr xz yq yy zf zr zx]
 
 vowels = ["a", "e", "i", "o", "u", "y",
           "A", "E", "I", "O", "U", "Y"]
@@ -13,9 +17,9 @@ commonLetters = ["E","T","A","O","I","N",
                  "e","t","a","o","i","n"]
 
 def handleIn():
-    #cipherText = raw_input("Enter in the ciphertext in HEX seperate with space: ").split()
+    cipherText = raw_input("Enter in the ciphertext in HEX seperate with space: ").split()
 
-    cipherText = "05 00 01 09 1c 4d 2c 4d 0b 12 00 00 4d 0c 05 0c 0b".split()
+    #cipherText = "05 00 01 09 1c 4d 2c 4d 0b 12 00 00 4d 0c 05 0c 0b".split()
     #fuck the police 0d 10 1a 00 45 0d 03 00 59 1b 0a 15 02 06 1c
     #key
 
@@ -179,45 +183,121 @@ def goodResult(list):
     return True
 
 def testString(wordStr):
-    if (checkDiagraph(wordStr) and checkVowel(wordStr)):
+    splitWord = wordStr.split(" ")
+
+    #Check word length
+    if(len(wordStr) > 6 and len(splitWord) < 3):
+        return False
+
+    #check if punctution is followed by a space
+    if('.' in wordStr and '. ' not in wordStr):
+        return False
+
+    #quick check of whole string with a check on "
+    if(not checkDiagraph(wordStr) or not checkVowel(wordStr) or wordStr.count('"') % 2 == 1):
+        return False
+
+    for word in splitWord:
+        if (not checkDiagraph(word) or not checkVowel(word)):
+            return False
+
+        upperCaseCount = sum(1 for c in word if c.isupper())
+
+        if (upperCaseCount < len(word) and upperCaseCount > 1):
+            return False
+
+        if (upperCaseCount >= 1 and word[0].islower()):
+            return False
+
+    return True
+
+def checkDict(sentence):
+    sentence = sentence.strip(",")
+    sentence = sentence.strip(".")
+    sentence = sentence.strip("?")
+    sentence = sentence.strip("!")
+    sentence = sentence.strip('"')
+    words = sentence.split(" ")
+
+
+    wordCount = 0.0
+
+    for word in words:
+        if(dictionary.check(word)):
+            wordCount += 1.0
+
+    #print(words, " ", wordCount)
+
+    if(float(wordCount) / float(len(words)) > 0.5):
         return True
     return False
 
+def wordCount(sentence):
+    sentence = sentence.strip(",")
+    sentence = sentence.strip(".")
+    sentence = sentence.strip("?")
+    sentence = sentence.strip("!")
+    sentence = sentence.strip('"')
+    words = sentence.split(" ")
+
+
+    wordCount = 0
+
+    for word in words:
+        if(dictionary.check(word)):
+            wordCount += 1.0
+
+    #print(words, " ", wordCount)
+
+    return wordCount
 
 def recursiveSolve(keyArr, encrypt):
-    print("KEY LENGTH 2")
+    solutions = []
+
     if(len(keyArr) == 2):
+        print("KEY LENGTH 2")
         for i in keyArr[0]:
             for k in keyArr[1]:
                 if(testString(breakArr([i, k], encrypt)) and testString(i+k)):
-                    print(breakArr([i, k], encrypt))
+                    if (checkDict(breakArr([i, k], encrypt))):
+                        print(breakArr([i, k], encrypt))
+                        solutions.append(breakArr([i, k], encrypt))
 
-    print("KEY LENGTH 3")
+
     if (len(keyArr) == 3):
+        print("KEY LENGTH 3")
         for i in keyArr[0]:
             for j in keyArr[1]:
                 for k in keyArr[2]:
                     if (testString(breakArr([i, j, k], encrypt)) and testString(i+j+k)):
-                        print(breakArr([i, j, k], encrypt))
+                        if (checkDict(breakArr([i, j, k], encrypt))):
+                            print(breakArr([i, j, k], encrypt))
+                            solutions.append(breakArr([i, j, k], encrypt))
 
-    print("KEY LENGTH 4")
     if (len(keyArr) == 4):
+        print("KEY LENGTH 4")
         for i in keyArr[0]:
             for j in keyArr[1]:
                 for k in keyArr[2]:
                     for l in keyArr[3]:
                         if (testString(breakArr([i, j, k, l], encrypt)) and testString(i + j + k + l)):
-                            print(breakArr([i, j, k, l], encrypt))
+                            if (checkDict(breakArr([i, j, k, l], encrypt))):
+                                print(breakArr([i, j, k, l], encrypt))
+                                solutions.append(breakArr([i, j, k, l], encrypt))
 
-    print("KEY LENGTH 5")
     if (len(keyArr) == 5):
+        print("KEY LENGTH 5")
         for i in keyArr[0]:
             for j in keyArr[1]:
                 for k in keyArr[2]:
                     for l in keyArr[3]:
                         for m in keyArr[4]:
-                    if (testString(breakArr([i, j, k], encrypt)) and testString(i + j + k)):
-                        print(breakArr([i, j, k], encrypt))
+                            if (testString(breakArr([i, j, k, l, m], encrypt)) and testString(i + j + k + l + m)):
+                                if(checkDict(breakArr([i, j, k, l, m], encrypt))):
+                                    print(breakArr([i, j, k, l, m], encrypt))
+                                    solutions.append(breakArr([i, j, k, l, m], encrypt))
+
+    return solutions
 
 
 cipher = handleIn()
@@ -235,12 +315,30 @@ for n in range(2, len(cipher), 1):
         result.append(bruteSingleChar(list(chunks(cipher, n)), i))
 
     if(goodResult(result)):
-        print(result)
-        recursiveSolve(result, cipher)
-        finalKeyAnswers.append(result)
+        solutions = recursiveSolve(result, cipher)
+        if(len(solutions) > 0):
+            finalKeyAnswers.append(solutions)
 
-#print(finalKeyAnswers)
-print("meme")
+print(finalKeyAnswers)
+
+wordScore = 0
+bestResult = ""
+possibleAnswers = []
+
+for soln in finalKeyAnswers:
+    for ans in soln:
+        if(wordCount(ans) > wordScore):
+            #print(wordCount(ans))
+            possibleAnswers = []
+            possibleAnswers.append(ans)
+            wordScore = wordCount(ans)
+        if(wordCount(ans) == wordScore):
+            possibleAnswers.append(ans)
+
+print("Solutions are"),
+for i in possibleAnswers:
+    print(i, " with a english word count of", wordScore)
+
 
 
 
