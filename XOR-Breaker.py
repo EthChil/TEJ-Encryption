@@ -273,15 +273,13 @@ def wordCount(sentence):
         if(dictionary.check(word)):
             wordCount += 1.0
 
-    print(words, " ", wordCount)
-
     return wordCount
 
 def recursiveSolve(keyArr, encrypt):
     solutions = []
 
     if(len(keyArr) == 2):
-        print("KEY LENGTH 2")
+        print("KEY LENGTH 2 STARTED")
         for i in keyArr[0]:
             for k in keyArr[1]:
                 if(testString(breakArr([i, k], encrypt)) and testString(i+k)):
@@ -291,7 +289,7 @@ def recursiveSolve(keyArr, encrypt):
 
 
     if (len(keyArr) == 3):
-        print("KEY LENGTH 3")
+        print("KEY LENGTH 3 STARTED")
         for i in keyArr[0]:
             for j in keyArr[1]:
                 for k in keyArr[2]:
@@ -301,7 +299,7 @@ def recursiveSolve(keyArr, encrypt):
                             solutions.append(breakArr([i, j, k], encrypt))
 
     if (len(keyArr) == 4):
-        print("KEY LENGTH 4")
+        print("KEY LENGTH 4 STARTED")
         for i in keyArr[0]:
             for j in keyArr[1]:
                 for k in keyArr[2]:
@@ -312,7 +310,7 @@ def recursiveSolve(keyArr, encrypt):
                                 solutions.append(breakArr([i, j, k, l], encrypt))
 
     if (len(keyArr) == 5):
-        print("KEY LENGTH 5")
+        print("KEY LENGTH 5 STARTED")
         for i in keyArr[0]:
             for j in keyArr[1]:
                 for k in keyArr[2]:
@@ -333,7 +331,7 @@ def solveKey(keyLength):
 
     if (goodResult(result)):
         solutions = recursiveSolve(result, cipher)
-        print(str(len(solutions)) + "Possible English Legal Solns' = " +  " with key length " + str(keyLength))
+        print(str(len(solutions)) + " Possible English Legal Solution(s) with key length " + str(keyLength))
 
         if (len(solutions) > 0):
             return solutions
@@ -342,37 +340,29 @@ def solveKey(keyLength):
 
 cipher = handleIn()
 
+#print raw binary
 print("Raw Binary Input")
 print(cipher)
 
-
-
+#Array of threads
 threads = []
 
-
+#Create threads, one thread will find the legal solns of a given key length
 for n in range(2, len(cipher), 1):
     threads.append(keySolverThread(n, "Thread-"+str(n), n))
 
-    # result = []
-    #
-    # for i in range(0, n, 1):
-    #     result.append(bruteSingleChar(list(chunks(cipher, n)), i))
-    #
-    # if(goodResult(result)):
-    #     solutions = recursiveSolve(result, cipher)
-    #     print("Possible English Legal Solns' = ", len(solutions))
-    #
-    #     if(len(solutions) > 0):
-    #         finalKeyAnswers.append(solutions)
-
+#start all the threads
 for thread in threads:
     thread.start()
 
+#wait for all the threads to finish
 for thread in threads:
     thread.join()
 
+#print all possible answers
 print(finalKeyAnswers)
 
+#narrow down to the most likely answers
 wordScore = 0
 bestResult = ""
 possibleAnswers = []
@@ -384,10 +374,10 @@ for soln in finalKeyAnswers:
             possibleAnswers.append(ans)
             wordScore = wordCount(ans)
 
-        if(wordCount(ans) == wordScore):
+        elif(wordCount(ans) == wordScore):
             possibleAnswers.append(ans)
 
-print("Solutions are"),
+print("Solutions are:")
 for i in possibleAnswers:
-    print(i, " with a english word count of", wordScore)
+    print(str(i) + " with a english word count of " + str(wordScore))
 
