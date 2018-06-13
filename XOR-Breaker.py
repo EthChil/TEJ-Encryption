@@ -43,7 +43,7 @@ class keySolverThread (threading.Thread):
 
 
 def handleIn():
-    cipherText = raw_input("Enter in the ciphertext in HEX seperate with space: ").split()
+    cipherText = chunks(raw_input("Enter in the ciphertext in HEX seperate with space: "), 2)
 
     #cipherText = "05 00 01 09 1c 4d 2c 4d 0b 12 00 00 4d 0c 05 0c 0b".split()
     #fuck the police 0d 10 1a 00 45 0d 03 00 59 1b 0a 15 02 06 1c
@@ -198,6 +198,14 @@ def breakArr(arr, encrypted):
 
     return ''.join(decrypt)
 
+def getKey(decrypt, encrypt):
+    decrypted = []
+
+    for pointer in range(len(encrypt)):
+        decrypted.append(chr(xorChar(decrypt[pointer], encrypt[pointer])))
+
+    return ''.join(decrypted)
+
 def chunks(l, n):
     for i in range(0, len(l), n):
         yield l[i:i+n]
@@ -336,6 +344,16 @@ def solveKey(keyLength):
         if (len(solutions) > 0):
             return solutions
 
+def repeats(string):
+    for x in range(1, len(string)):
+        substring = string[:x]
+
+        if substring * (len(string)//len(substring))+(substring[:len(string)%len(substring)]) == string:
+            return substring
+
+    return string
+
+
 #-----------------------------------------------------MAIN PROGRAM--------------------------------------------------------
 
 cipher = handleIn()
@@ -348,7 +366,8 @@ print(cipher)
 threads = []
 
 #Create threads, one thread will find the legal solns of a given key length
-for n in range(2, len(cipher), 1):
+#for n in range(2, len(cipher), 1):
+for n in range(2, 6, 1):
     threads.append(keySolverThread(n, "Thread-"+str(n), n))
 
 #start all the threads
@@ -360,7 +379,12 @@ for thread in threads:
     thread.join()
 
 #print all possible answers
+print("")
+print("All Possible Solutions: "),
 print(finalKeyAnswers)
+
+#new line
+print("")
 
 #narrow down to the most likely answers
 wordScore = 0
@@ -379,5 +403,7 @@ for soln in finalKeyAnswers:
 
 print("Solutions are:")
 for i in possibleAnswers:
-    print(str(i) + " with a english word count of " + str(wordScore))
+    print(str(i) + " with a english word count of " + str(wordScore) + ", encrypted with the key: " + str(repeats(getKey(i ,cipher))))
+
+
 
