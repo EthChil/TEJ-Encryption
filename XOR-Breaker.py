@@ -1,4 +1,15 @@
-import itertools
+#Written by Ethan Childerhose on 6/12/2018
+#
+#XOR-Breaker
+#
+#Given an encrypted HEX string it will decrypt it given that the answer is an english sentence
+# with minimal slang. The program will retain most punctuation and all capitalization.
+#
+#TODO: allow infinite length key
+#TODO: print key after solved
+#
+#
+import threading
 import enchant
 
 dictionary = enchant.Dict("en_US")
@@ -15,6 +26,21 @@ vowels = ["a", "e", "i", "o", "u", "y",
 
 commonLetters = ["E","T","A","O","I","N",
                  "e","t","a","o","i","n"]
+
+finalKeyAnswers = []
+
+class keySolverThread (threading.Thread):
+   def __init__(self, threadID, name, keyLength):
+      threading.Thread.__init__(self)
+      self.threadID = threadID
+      self.name = name
+      self.keyLength = keyLength
+   def run(self):
+       solution = solveKey(self.keyLength)
+
+       if(solution != None):
+           finalKeyAnswers.append(solution)
+
 
 def handleIn():
     cipherText = raw_input("Enter in the ciphertext in HEX seperate with space: ").split()
@@ -186,7 +212,7 @@ def testString(wordStr):
     splitWord = wordStr.split(" ")
 
     #Check word length
-    if(len(wordStr) > 6 and len(splitWord) < 3):
+    if(len(splitWord) < (len(wordStr)/5)-1):
         return False
 
     #check if punctution is followed by a space
@@ -299,25 +325,51 @@ def recursiveSolve(keyArr, encrypt):
 
     return solutions
 
+def solveKey(keyLength):
+    result = []
+
+    for i in range(0, keyLength, 1):
+        result.append(bruteSingleChar(list(chunks(cipher, keyLength)), i))
+
+    if (goodResult(result)):
+        solutions = recursiveSolve(result, cipher)
+        print(str(len(solutions)) + "Possible English Legal Solns' = " +  " with key length " + str(keyLength))
+
+        if (len(solutions) > 0):
+            return solutions
+
+#-----------------------------------------------------MAIN PROGRAM--------------------------------------------------------
 
 cipher = handleIn()
 
+print("Raw Binary Input")
 print(cipher)
 
-# print(bruteSingleChar(cipher))
 
-finalKeyAnswers = []
+
+threads = []
+
 
 for n in range(2, len(cipher), 1):
-    result = []
+    threads.append(keySolverThread(n, "Thread-"+str(n), n))
 
-    for i in range(0, n, 1):
-        result.append(bruteSingleChar(list(chunks(cipher, n)), i))
+    # result = []
+    #
+    # for i in range(0, n, 1):
+    #     result.append(bruteSingleChar(list(chunks(cipher, n)), i))
+    #
+    # if(goodResult(result)):
+    #     solutions = recursiveSolve(result, cipher)
+    #     print("Possible English Legal Solns' = ", len(solutions))
+    #
+    #     if(len(solutions) > 0):
+    #         finalKeyAnswers.append(solutions)
 
-    if(goodResult(result)):
-        solutions = recursiveSolve(result, cipher)
-        if(len(solutions) > 0):
-            finalKeyAnswers.append(solutions)
+for thread in threads:
+    thread.start()
+
+for thread in threads:
+    thread.join()
 
 print(finalKeyAnswers)
 
@@ -328,10 +380,10 @@ possibleAnswers = []
 for soln in finalKeyAnswers:
     for ans in soln:
         if(wordCount(ans) > wordScore):
-            #print(wordCount(ans))
             possibleAnswers = []
             possibleAnswers.append(ans)
             wordScore = wordCount(ans)
+
         if(wordCount(ans) == wordScore):
             possibleAnswers.append(ans)
 
@@ -339,18 +391,3 @@ print("Solutions are"),
 for i in possibleAnswers:
     print(i, " with a english word count of", wordScore)
 
-
-#
-# for i in lookupList:
-#     print(chr(i)),
-#
-# for j in cipher:
-#     print("STARTING TO DO " + j)
-#     for i in lookupList:
-#         decoded = bruteForce(i, j)
-#
-#         if(decoded in lookupList):
-#             print(chr(decoded)),
-#         else:
-#             print("*"),
-#
