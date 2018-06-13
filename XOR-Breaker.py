@@ -403,7 +403,7 @@ for soln in finalKeyAnswers:
 
 print("Solutions are:")
 for i in possibleAnswers:
-    print(str(i) + " with a english word count of " + str(wordScore) + ", encrypted with the key: " + str(repeats(getKey(i ,cipher))))
+    print(str(i) + " with an english word count of " + str(wordScore) + ", encrypted with the key: " + str(repeats(getKey(i ,cipher))))
 
 
 
