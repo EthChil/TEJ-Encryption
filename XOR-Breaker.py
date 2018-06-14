@@ -29,6 +29,7 @@ commonLetters = ["E","T","A","O","I","N",
 
 finalKeyAnswers = []
 
+
 class keySolverThread (threading.Thread):
    def __init__(self, threadID, name, keyLength):
       threading.Thread.__init__(self)
@@ -36,7 +37,7 @@ class keySolverThread (threading.Thread):
       self.name = name
       self.keyLength = keyLength
    def run(self):
-       solution = solveKey(self.keyLength)
+       solution = recursiveSolve(self.keyLength)
 
        if(solution != None):
            finalKeyAnswers.append(solution)
@@ -46,8 +47,8 @@ def handleIn():
     cipherText = chunks(raw_input("Enter in the ciphertext in HEX seperate with space: "), 2)
 
     #cipherText = "05 00 01 09 1c 4d 2c 4d 0b 12 00 00 4d 0c 05 0c 0b".split()
-    #fuck the police 0d 10 1a 00 45 0d 03 00 59 1b 0a 15 02 06 1c
-    #key
+    #151A1E452B1A1F4525014745090103042254 (TEJ ONE)
+
 
     output = []
 
@@ -283,7 +284,8 @@ def wordCount(sentence):
 
     return wordCount
 
-def recursiveSolve(keyArr, encrypt):
+
+def solve(keyArr, encrypt):
     solutions = []
 
     if(len(keyArr) == 2):
@@ -331,18 +333,33 @@ def recursiveSolve(keyArr, encrypt):
 
     return solutions
 
-def solveKey(keyLength):
+def recursiveSolve(keyLength):
+    finalSolutions = []
     result = []
+
+    def getSolutions(keyArray, key, depth, encrypted):
+        if (depth < len(keyArray)):
+            for i in keyArray[depth]:
+                if(key == None):
+                    getSolutions(keyArray, [i], depth + 1, encrypted)
+                else:
+                    key.append(i)
+                    getSolutions(keyArray, key, depth + 1, encrypted)
+                    key.remove(i)
+        else:
+            if (testString(breakArr(key, encrypted)) and testString(''.join(key))):
+                if (checkDict(breakArr(key, encrypted))):
+                    finalSolutions.append(breakArr(key, encrypted))
 
     for i in range(0, keyLength, 1):
         result.append(bruteSingleChar(list(chunks(cipher, keyLength)), i))
 
     if (goodResult(result)):
-        solutions = recursiveSolve(result, cipher)
-        print(str(len(solutions)) + " Possible English Legal Solution(s) with key length " + str(keyLength))
+        getSolutions(result, [], 0, cipher)
+        print(str(len(finalSolutions)) + " Possible English Legal Solution(s) with key length " + str(keyLength))
 
-        if (len(solutions) > 0):
-            return solutions
+        if (len(finalSolutions) > 0):
+            return finalSolutions
 
 def repeats(string):
     for x in range(1, len(string)):
@@ -367,16 +384,22 @@ threads = []
 
 #Create threads, one thread will find the legal solns of a given key length
 #for n in range(2, len(cipher), 1):
-for n in range(2, 6, 1):
+maxKeySize = len(cipher)/2
+if(maxKeySize < 5):
+    maxKeySize = 5
+
+for n in range(2, maxKeySize, 1):
     threads.append(keySolverThread(n, "Thread-"+str(n), n))
 
 #start all the threads
-for thread in threads:
-    thread.start()
+for num in range(len(threads)):
+    print("Starting Thread #" + str(num))
+    threads[num].start()
 
 #wait for all the threads to finish
-for thread in threads:
-    thread.join()
+for num in range(len(threads)):
+    print("Waiting on Thread #" + str(num))
+    threads[num].join()
 
 #print all possible answers
 print("")
