@@ -6,7 +6,6 @@
 # with minimal slang. The program will retain most punctuation and all capitalization.
 #
 #TODO: allow infinite length key
-#TODO: print key after solved
 #
 #
 import threading
@@ -18,8 +17,8 @@ lookupList = [46, 44, 33, 63, 34, 32,
               65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90,
               97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110 ,111, 112, 113, 114, 115, 116, 117 ,118, 119, 120, 121, 122]
 
-diagraphs = ["cj", "fq", "gx", "hx", "jf", "jq", "jx", "jz", "qb", "qc", "qj", "qk", "qx", "qz", "sx", "vf", "vj", "vq", "vx", "wx", "xj", "zx"]
-#diagraphs = ["bq", "bz", "cf", "cj" "cv", "cx" "fq" "fv" "fx" "fz" "gq" "gv" "gx" "hx" "hz" "jb" "jd" "jf" "jg" "jh" "jl" "jm" "jp" "jq" "js" "jt" "jv" "jw" "jx" "jy" "jz" "kq" "kx" "kz" "mx" "mz" "pq" "pv" "px" "qb" "qc" "qd" "qf" "qg" "qh" "qj" "qk" "ql" "qm qn qp qq qv qw qx qy qz sx tq vb vf vh vj vk vm vp vq vw vx wq wv wx xd xj xk xr xz yq yy zf zr zx]
+#diagraphs = ["cj", "fq", "gx", "hx", "jf", "jq", "jx", "jz", "qb", "qc", "qj", "qk", "qx", "qz", "sx", "vf", "vj", "vq", "vx", "wx", "xj", "zx"]
+diagraphs = ["bq", "bz", "cf", "cj" "cv", "cx", "fq", "fv", "fx", "fz", "gq", "gv", "gx", "hx", "hz", "jb", "jd", "jf", "jg", "jh", "jl", "jm", "jp", "jq", "js", "jt", "jv", "jw", "jx", "jy", "jz", "kq", "kx", "kz", "mx", "mz", "pq", "pv", "px", "qb", "qc", "qd", "qf", "qg", "qh", "qj", "qk", "ql", "qm", "qn", "qp", "qq", "qv", "qw", "qx", "qy", "qz", "sx", "tq", "vb", "vf", "vh", "vj", "vk", "vm", "vp", "vq", "vw", "vx", "wq", "wv", "wx", "xd", "xj", "xk", "xr", "xz", "yq", "yy", "zf", "zr", "zx"]
 
 vowels = ["a", "e", "i", "o", "u", "y",
           "A", "E", "I", "O", "U", "Y"]
@@ -42,13 +41,12 @@ class keySolverThread (threading.Thread):
        if(solution != None):
            finalKeyAnswers.append(solution)
 
-
+#Takes raw hex input from the user then convert to binary and return
 def handleIn():
-    cipherText = chunks(raw_input("Enter in the ciphertext in HEX seperate with space: "), 2)
+    cipherText = chunks(raw_input("Enter in the ciphertext in HEX: "), 2)
 
     #cipherText = "05 00 01 09 1c 4d 2c 4d 0b 12 00 00 4d 0c 05 0c 0b".split()
     #151A1E452B1A1F4525014745090103042254 (TEJ ONE)
-
 
     output = []
 
@@ -65,7 +63,7 @@ def handleIn():
 
     return output
 
-
+#convert ascii characters to binary
 def asciiToBin(ascii):
     binary = bin(ord(ascii)).split("b")[1]
 
@@ -77,20 +75,7 @@ def asciiToBin(ascii):
 
     return binary
 
-#Will do a XOR given an ascii
-def bruteForce(index, binaryCipher):
-    binaryTest = asciiToBin(chr(index))
-
-    out = []
-
-    for i in range(8):
-        if(int(binaryTest[i]) != int(binaryCipher[i])):
-            out.append("1")
-        else:
-            out.append("0")
-
-    return int(''.join(out), 2)
-
+#XOR a character and a 8bit binary number
 def xorChar(a, b):
     binA = asciiToBin(a)
     binB = b
@@ -105,12 +90,13 @@ def xorChar(a, b):
 
     return int(''.join(out), 2)
 
-
+#convert a number to any base recursively
 def convertToBase(number, base):
     if(number / base < 1):
         return str(number % base)
     else:
         return str(number % base) + "," + str(convertToBase(int(number / base), base))
+
 
 def genKey(index, list):
     nums = convertToBase(index, len(list)).split(",")
@@ -122,22 +108,21 @@ def genKey(index, list):
 
     return output
 
-
-#08 0d 02 07
-#llll
-
+#Check if diagraph exists in the given string
 def checkDiagraph(input):
     for i in diagraphs:
         if(i in input):
             return False
     return True
 
+#Check if a vowel exists in the given string
 def checkVowel(input):
     for i in vowels:
         if(i in input):
             return True
     return False
 
+#Calculate the strength of word in being english
 def calcWeight(word):
     score = 0
 
@@ -152,11 +137,9 @@ def calcWeight(word):
 #Codes is taken in as an array of binary
 def bruteSingleChar(codes, depth):
     possible = []
-    scores = []
 
     for a in lookupList:
         found = True
-        word = []
 
         for b in codes:
             if(len(b) <= depth):
@@ -167,25 +150,13 @@ def bruteSingleChar(codes, depth):
             if(xorChar(chr(a), b) not in lookupList):
                 found = False
                 break
-            else:
-                word.append(chr(xorChar(chr(a), b)))
 
-        wordStr = ''.join(word)
-
-        #if(found and checkDiagraph(wordStr) and checkVowel(wordStr)):
-        if (found ):
+        if(found):
             possible.append(chr(a))
-            scores.append(calcWeight(wordStr))
-
-    # if(len(possible) > 1):
-    #     highestScore = max(scores)
-    #
-    #     for i in range(len(scores)):
-    #         if(scores[i] == highestScore):
-    #             return possible[i]
 
     return possible
 
+#xor two strings return the output
 def breakArr(arr, encrypted):
     arrPointer = 0
     decrypt = []
@@ -199,6 +170,7 @@ def breakArr(arr, encrypted):
 
     return ''.join(decrypt)
 
+
 def getKey(decrypt, encrypt):
     decrypted = []
 
@@ -207,10 +179,12 @@ def getKey(decrypt, encrypt):
 
     return ''.join(decrypted)
 
+#Break an array l into smaller arrays of length n
 def chunks(l, n):
     for i in range(0, len(l), n):
         yield l[i:i+n]
 
+#Check if an array is a good result after being computed
 def goodResult(list):
     for item in list:
         if(len(item) == 0):
@@ -333,6 +307,16 @@ def solve(keyArr, encrypt):
 
     return solutions
 
+#Calculates the amount of different permutations in a given dataset
+def calcIterations(keyArray):
+    permutations = 1
+
+    for i in keyArray:
+        permutations *= len(i)
+
+    return permutations
+
+
 def recursiveSolve(keyLength):
     finalSolutions = []
     result = []
@@ -355,6 +339,8 @@ def recursiveSolve(keyLength):
         result.append(bruteSingleChar(list(chunks(cipher, keyLength)), i))
 
     if (goodResult(result)):
+        print("st " + str(calcIterations(result)) + " en")
+
         getSolutions(result, [], 0, cipher)
         print(str(len(finalSolutions)) + " Possible English Legal Solution(s) with key length " + str(keyLength))
 
@@ -384,7 +370,7 @@ threads = []
 
 #Create threads, one thread will find the legal solns of a given key length
 #for n in range(2, len(cipher), 1):
-maxKeySize = len(cipher)/2
+maxKeySize = int(len(cipher)/2)
 if(maxKeySize < 5):
     maxKeySize = 5
 
