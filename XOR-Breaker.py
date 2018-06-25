@@ -370,7 +370,7 @@ threads = []
 
 #Create threads, one thread will find the legal solns of a given key length
 #for n in range(2, len(cipher), 1):
-maxKeySize = int(len(cipher)/2)
+maxKeySize = int(len(cipher)/3)
 if(maxKeySize < 5):
     maxKeySize = 5
 
