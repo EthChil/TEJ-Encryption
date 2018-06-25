@@ -258,55 +258,6 @@ def wordCount(sentence):
 
     return wordCount
 
-
-def solve(keyArr, encrypt):
-    solutions = []
-
-    if(len(keyArr) == 2):
-        print("KEY LENGTH 2 STARTED")
-        for i in keyArr[0]:
-            for k in keyArr[1]:
-                if(testString(breakArr([i, k], encrypt)) and testString(i+k)):
-                    if (checkDict(breakArr([i, k], encrypt))):
-                        #print(breakArr([i, k], encrypt))
-                        solutions.append(breakArr([i, k], encrypt))
-
-
-    if (len(keyArr) == 3):
-        print("KEY LENGTH 3 STARTED")
-        for i in keyArr[0]:
-            for j in keyArr[1]:
-                for k in keyArr[2]:
-                    if (testString(breakArr([i, j, k], encrypt)) and testString(i+j+k)):
-                        if (checkDict(breakArr([i, j, k], encrypt))):
-                            #print(breakArr([i, j, k], encrypt))
-                            solutions.append(breakArr([i, j, k], encrypt))
-
-    if (len(keyArr) == 4):
-        print("KEY LENGTH 4 STARTED")
-        for i in keyArr[0]:
-            for j in keyArr[1]:
-                for k in keyArr[2]:
-                    for l in keyArr[3]:
-                        if (testString(breakArr([i, j, k, l], encrypt)) and testString(i + j + k + l)):
-                            if (checkDict(breakArr([i, j, k, l], encrypt))):
-                                #print(breakArr([i, j, k, l], encrypt))
-                                solutions.append(breakArr([i, j, k, l], encrypt))
-
-    if (len(keyArr) == 5):
-        print("KEY LENGTH 5 STARTED")
-        for i in keyArr[0]:
-            for j in keyArr[1]:
-                for k in keyArr[2]:
-                    for l in keyArr[3]:
-                        for m in keyArr[4]:
-                            if (testString(breakArr([i, j, k, l, m], encrypt)) and testString(i + j + k + l + m)):
-                                if(checkDict(breakArr([i, j, k, l, m], encrypt))):
-                                    #print(breakArr([i, j, k, l, m], encrypt))
-                                    solutions.append(breakArr([i, j, k, l, m], encrypt))
-
-    return solutions
-
 #Calculates the amount of different permutations in a given dataset
 def calcIterations(keyArray):
     permutations = 1
@@ -369,7 +320,6 @@ print(cipher)
 threads = []
 
 #Create threads, one thread will find the legal solns of a given key length
-#for n in range(2, len(cipher), 1):
 maxKeySize = int(len(cipher)/3)
 if(maxKeySize < 5):
     maxKeySize = 5
