@@ -13,18 +13,17 @@ import enchant
 
 dictionary = enchant.Dict("en_US")
 
+#ascii
 lookupList = [46, 44, 33, 63, 34, 32,
               65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90,
               97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110 ,111, 112, 113, 114, 115, 116, 117 ,118, 119, 120, 121, 122]
 
-#diagraphs = ["cj", "fq", "gx", "hx", "jf", "jq", "jx", "jz", "qb", "qc", "qj", "qk", "qx", "qz", "sx", "vf", "vj", "vq", "vx", "wx", "xj", "zx"]
 diagraphs = ["bq", "bz", "cf", "cj" "cv", "cx", "fq", "fv", "fx", "fz", "gq", "gv", "gx", "hx", "hz", "jb", "jd", "jf", "jg", "jh", "jl", "jm", "jp", "jq", "js", "jt", "jv", "jw", "jx", "jy", "jz", "kq", "kx", "kz", "mx", "mz", "pq", "pv", "px", "qb", "qc", "qd", "qf", "qg", "qh", "qj", "qk", "ql", "qm", "qn", "qp", "qq", "qv", "qw", "qx", "qy", "qz", "sx", "tq", "vb", "vf", "vh", "vj", "vk", "vm", "vp", "vq", "vw", "vx", "wq", "wv", "wx", "xd", "xj", "xk", "xr", "xz", "yq", "yy", "zf", "zr", "zx"]
 
+#Vowel List
 vowels = ["a", "e", "i", "o", "u", "y",
           "A", "E", "I", "O", "U", "Y"]
 
-commonLetters = ["E","T","A","O","I","N",
-                 "e","t","a","o","i","n"]
 
 finalKeyAnswers = []
 
@@ -43,7 +42,7 @@ class keySolverThread (threading.Thread):
 
 #Takes raw hex input from the user then convert to binary and return
 def handleIn():
-    cipherText = chunks(raw_input("Enter in the ciphertext in HEX: "), 2)
+    cipherText = chunks(raw_input("Enter in the ciphertext in HEX: ").strip(" "), 2)
 
     #cipherText = "05 00 01 09 1c 4d 2c 4d 0b 12 00 00 4d 0c 05 0c 0b".split()
     #151A1E452B1A1F4525014745090103042254 (TEJ ONE)
@@ -97,17 +96,6 @@ def convertToBase(number, base):
     else:
         return str(number % base) + "," + str(convertToBase(int(number / base), base))
 
-
-def genKey(index, list):
-    nums = convertToBase(index, len(list)).split(",")
-
-    output = ""
-
-    for i in nums:
-        output = output + chr(lookupList[int(i)])
-
-    return output
-
 #Check if diagraph exists in the given string
 def checkDiagraph(input):
     for i in diagraphs:
@@ -121,17 +109,6 @@ def checkVowel(input):
         if(i in input):
             return True
     return False
-
-#Calculate the strength of word in being english
-def calcWeight(word):
-    score = 0
-
-    for letter in word:
-        for i in commonLetters:
-            if(i == letter):
-                score += 1
-
-    return score
 
 
 #Codes is taken in as an array of binary
@@ -298,6 +275,7 @@ def recursiveSolve(keyLength):
         if (len(finalSolutions) > 0):
             return finalSolutions
 
+#Finds a substring that repeats within the string
 def repeats(string):
     for x in range(1, len(string)):
         substring = string[:x]
@@ -324,6 +302,7 @@ maxKeySize = int(len(cipher)/3)
 if(maxKeySize < 5):
     maxKeySize = 5
 
+#Create and name threads
 for n in range(2, maxKeySize, 1):
     threads.append(keySolverThread(n, "Thread-"+str(n), n))
 
@@ -350,6 +329,7 @@ wordScore = 0
 bestResult = ""
 possibleAnswers = []
 
+#Select best solution(s)
 for soln in finalKeyAnswers:
     for ans in soln:
         if(wordCount(ans) > wordScore):
@@ -360,6 +340,7 @@ for soln in finalKeyAnswers:
         elif(wordCount(ans) == wordScore):
             possibleAnswers.append(ans)
 
+#Print the final Solution(s)
 print("Solutions are:")
 for i in possibleAnswers:
     print(str(i) + " with an english word count of " + str(wordScore) + ", encrypted with the key: " + str(repeats(getKey(i ,cipher))))
