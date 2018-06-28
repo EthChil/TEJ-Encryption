@@ -44,9 +44,6 @@ class keySolverThread (threading.Thread):
 def handleIn():
     cipherText = chunks(raw_input("Enter in the ciphertext in HEX: ").strip(" "), 2)
 
-    #cipherText = "05 00 01 09 1c 4d 2c 4d 0b 12 00 00 4d 0c 05 0c 0b".split()
-    #151A1E452B1A1F4525014745090103042254 (TEJ ONE)
-
     output = []
 
     for i in cipherText:
@@ -244,7 +241,7 @@ def calcIterations(keyArray):
 
     return permutations
 
-
+#Main recursive solver
 def recursiveSolve(keyLength):
     finalSolutions = []
     result = []
