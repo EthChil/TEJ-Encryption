@@ -5,7 +5,7 @@
 #Given an encrypted HEX string it will decrypt it given that the answer is an english sentence
 # with minimal slang. The program will retain most punctuation and all capitalization.
 #
-#TODO: allow infinite length key
+#TODO: allow for quick solution printing
 #
 #
 import threading
